@@ -145,7 +145,7 @@ class CardController extends Controller {
                     )
                     ->first();
             }
-
+            
             $uncommons = Face::leftJoin('cards', 'cards.id', '=', 'faces.card_id')
                 ->orderBy(\DB::raw("RAND()"))
                 ->where('cards.rarity', '=', 'uncommon')
@@ -169,6 +169,9 @@ class CardController extends Controller {
                     'cards.value', 'cards.arena_class', 'cards.rarity'
                 )
                 ->get();
+
+            $uncommons = json_decode(json_encode($uncommons), true);
+            $commons   = json_decode(json_encode($commons), true);
 
             $pack[] = $card;
 
@@ -371,10 +374,10 @@ class CardController extends Controller {
         $type        = $request->input('type', '');
         $cardIds     = $request->input('cards', false);
 
-        $deck->name = $name;
-        $deck->image = $image;
+        $deck->name        = $name;
+        $deck->image       = $image;
         $deck->description = $description;
-        $deck->type = $type;
+        $deck->type        = $type;
         $deck->save();
 
         DeckCard::where('deck_id', '=', $deck->id)->delete();
