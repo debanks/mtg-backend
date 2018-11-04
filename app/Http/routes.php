@@ -13,4 +13,6 @@
 Route::group(['middleware' => ['api']], function() {
     Route::get('api/home', ['uses' => 'CardController@home']);
     Route::get('api/search', ['uses' => 'CardController@search']);
+    Route::get('api/draft', ['uses' => 'CardController@draft']);
+    Route::get('api/simulate/{deckId}', ['uses' => 'CardController@simulae']);
 });
