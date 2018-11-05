@@ -17,6 +17,7 @@ class CreateDeckCardsTable extends Migration {
 
             $table->increments('id');
             $table->integer('deck_id')->unsigned()->index();
+            $table->string('section', 32);
             $table->integer('card_id')->unsigned()->index();
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->index();
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP'));
