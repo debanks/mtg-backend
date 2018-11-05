@@ -123,12 +123,14 @@ class CardController extends Controller {
             if ($isMythic) {
                 $card = Face::leftJoin('cards', 'cards.id', '=', 'faces.card_id')
                     ->orderBy(\DB::raw("RAND()"))
+                    ->groupBy('cards.id')
                     ->where('cards.rarity', '=', 'mythic')
                     ->where('cards.set', '=', $set)
                     ->where('faces.type', 'NOT LIKE', '%Basic Land%')
                     ->select(
                         'cards.name', 'faces.power', 'faces.toughness', 'cards.image', 'cards.set', 'cards.set_name',
-                        'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.colors', 'cards.cost_text'
+                        'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.colors', 'cards.cost_text',
+                        \DB::raw('MIN(faces.total_cost) as total_cost')
                     )
                     ->first();
             }
@@ -136,37 +138,43 @@ class CardController extends Controller {
             if (!$card) {
                 $card = Face::leftJoin('cards', 'cards.id', '=', 'faces.card_id')
                     ->orderBy(\DB::raw("RAND()"))
+                    ->groupBy('cards.id')
                     ->where('cards.rarity', '=', 'rare')
                     ->where('cards.set', '=', $set)
                     ->where('faces.type', 'NOT LIKE', '%Basic Land%')
                     ->select(
                         'cards.name', 'faces.power', 'faces.toughness', 'cards.image', 'cards.set', 'cards.set_name',
-                        'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.colors', 'cards.cost_text'
+                        'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.colors', 'cards.cost_text',
+                        \DB::raw('MIN(faces.total_cost) as total_cost')
                     )
                     ->first();
             }
 
             $uncommons = Face::leftJoin('cards', 'cards.id', '=', 'faces.card_id')
                 ->orderBy(\DB::raw("RAND()"))
+                ->groupBy('cards.id')
                 ->where('cards.rarity', '=', 'uncommon')
                 ->where('cards.set', '=', $set)
                 ->where('faces.type', 'NOT LIKE', '%Basic Land%')
                 ->limit(3)
                 ->select(
                     'cards.name', 'faces.power', 'faces.toughness', 'cards.image', 'cards.set', 'cards.set_name',
-                    'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.colors', 'cards.cost_text'
+                    'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.colors', 'cards.cost_text',
+                    \DB::raw('MIN(faces.total_cost) as total_cost')
                 )
                 ->get();
 
             $commons = Face::leftJoin('cards', 'cards.id', '=', 'faces.card_id')
                 ->orderBy(\DB::raw("RAND()"))
+                ->groupBy('cards.id')
                 ->where('cards.rarity', '=', 'common')
                 ->where('cards.set', '=', $set)
                 ->where('faces.type', 'NOT LIKE', '%Basic Land%')
                 ->limit(10)
                 ->select(
                     'cards.name', 'faces.power', 'faces.toughness', 'cards.image', 'cards.set', 'cards.set_name',
-                    'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.colors', 'cards.cost_text'
+                    'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.colors', 'cards.cost_text',
+                    \DB::raw('MIN(faces.total_cost) as total_cost')
                 )
                 ->get();
 
