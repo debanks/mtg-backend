@@ -128,7 +128,7 @@ class CardController extends Controller {
                     ->where('faces.type', 'NOT LIKE', '%Basic Land%')
                     ->select(
                         'faces.name', 'faces.power', 'faces.toughness', 'cards.image', 'cards.set', 'cards.set_name',
-                        'cards.value', 'cards.arena_class', 'cards.rarity'
+                        'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.colors'
                     )
                     ->first();
             }
@@ -141,11 +141,11 @@ class CardController extends Controller {
                     ->where('faces.type', 'NOT LIKE', '%Basic Land%')
                     ->select(
                         'faces.name', 'faces.power', 'faces.toughness', 'cards.image', 'cards.set', 'cards.set_name',
-                        'cards.value', 'cards.arena_class', 'cards.rarity'
+                        'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.colors'
                     )
                     ->first();
             }
-            
+
             $uncommons = Face::leftJoin('cards', 'cards.id', '=', 'faces.card_id')
                 ->orderBy(\DB::raw("RAND()"))
                 ->where('cards.rarity', '=', 'uncommon')
@@ -154,7 +154,7 @@ class CardController extends Controller {
                 ->limit(3)
                 ->select(
                     'faces.name', 'faces.power', 'faces.toughness', 'cards.image', 'cards.set', 'cards.set_name',
-                    'cards.value', 'cards.arena_class', 'cards.rarity'
+                    'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.colors'
                 )
                 ->get();
 
@@ -166,7 +166,7 @@ class CardController extends Controller {
                 ->limit(10)
                 ->select(
                     'faces.name', 'faces.power', 'faces.toughness', 'cards.image', 'cards.set', 'cards.set_name',
-                    'cards.value', 'cards.arena_class', 'cards.rarity'
+                    'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.colors'
                 )
                 ->get();
 
