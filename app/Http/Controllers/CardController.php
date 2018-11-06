@@ -29,11 +29,12 @@ class CardController extends Controller {
         $rarities = $request->input('rarities', false);
         $page     = $request->input('page', 1);
 
-        $query = Face::leftJoin('cards', 'cards.id', '=', 'faces.card_id')
+        $query = Card::leftJoin('faces', 'cards.id', '=', 'faces.card_id')
             ->orderBy($orderBy, $ordering)
             ->select(
-                'faces.name', 'faces.power', 'faces.toughness', 'cards.image', 'cards.set', 'cards.set_name',
-                'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.id', 'cards.cost_text'
+                'cards.name', 'faces.power', 'faces.toughness', 'cards.image', 'cards.set', 'cards.set_name',
+                'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.colors', 'cards.cost_text',
+                \DB::raw('MIN(faces.total_cost) as total_cost'), 'cards.id'
             );
 
         if ($sets !== false) {
