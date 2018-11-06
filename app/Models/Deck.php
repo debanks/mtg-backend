@@ -11,6 +11,6 @@ use Illuminate\Database\Eloquent\Model;
 class Deck extends Model {
 
     protected $fillable = [
-        'name', 'image', 'description', 'type', 'colors'
+        'name', 'image', 'description', 'type', 'colors', 'priority'
     ];
 }

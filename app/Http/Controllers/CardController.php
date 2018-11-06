@@ -4,8 +4,6 @@ use App\Console\Commands\CardCommand;
 use App\Constants;
 use App\Http\Controllers\Controller;
 use App\Models\Card;
-use App\Models\Deck;
-use App\Models\DeckCard;
 use App\Models\Face;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -35,7 +33,7 @@ class CardController extends Controller {
             ->orderBy($orderBy, $ordering)
             ->select(
                 'faces.name', 'faces.power', 'faces.toughness', 'cards.image', 'cards.set', 'cards.set_name',
-                'cards.value', 'cards.arena_class', 'cards.rarity'
+                'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.id'
             );
 
         if ($sets !== false) {
@@ -130,7 +128,7 @@ class CardController extends Controller {
                     ->select(
                         'cards.name', 'faces.power', 'faces.toughness', 'cards.image', 'cards.set', 'cards.set_name',
                         'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.colors', 'cards.cost_text',
-                        \DB::raw('MIN(faces.total_cost) as total_cost')
+                        \DB::raw('MIN(faces.total_cost) as total_cost'), 'cards.id'
                     )
                     ->first();
             }
@@ -145,7 +143,7 @@ class CardController extends Controller {
                     ->select(
                         'cards.name', 'faces.power', 'faces.toughness', 'cards.image', 'cards.set', 'cards.set_name',
                         'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.colors', 'cards.cost_text',
-                        \DB::raw('MIN(faces.total_cost) as total_cost')
+                        \DB::raw('MIN(faces.total_cost) as total_cost'), 'cards.id'
                     )
                     ->first();
             }
@@ -160,7 +158,7 @@ class CardController extends Controller {
                 ->select(
                     'cards.name', 'faces.power', 'faces.toughness', 'cards.image', 'cards.set', 'cards.set_name',
                     'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.colors', 'cards.cost_text',
-                    \DB::raw('MIN(faces.total_cost) as total_cost')
+                    \DB::raw('MIN(faces.total_cost) as total_cost'), 'cards.id'
                 )
                 ->get();
 
@@ -174,7 +172,7 @@ class CardController extends Controller {
                 ->select(
                     'cards.name', 'faces.power', 'faces.toughness', 'cards.image', 'cards.set', 'cards.set_name',
                     'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.colors', 'cards.cost_text',
-                    \DB::raw('MIN(faces.total_cost) as total_cost')
+                    \DB::raw('MIN(faces.total_cost) as total_cost'), 'cards.id'
                 )
                 ->get();
 
@@ -197,210 +195,6 @@ class CardController extends Controller {
                     'cards.value', 'cards.arena_class', 'cards.rarity'
                 )
                 ->get()
-        ];
-    }
-
-    public function simulate(Request $request, $deckId) {
-
-        $times = $request->input('hands', 1);
-
-        if (!$deckId) {
-            return [
-                'status' => false
-            ];
-        }
-
-        $deck = Deck::find($deckId);
-
-        if (!$deck) {
-            return [
-                'status' => false
-            ];
-        }
-
-        $cards = Card::leftJoin('deck_cards', 'deck_cards.card_id', '=', 'cards.id')
-            ->leftJoin(\DB::raw("
-                (SELECT 
-                    card_id,
-                    SUM(IF(type like '%Land%', 1, 0)) as is_land,
-                    MIN(IF(type like '%Land%', -1, total_cost)) as cost
-                FROM faces
-                GROUP BY 1) as faces
-            "), 'faces.card_id', '=', 'cards.id')
-            ->where('deck_cards.deck_id', '=', $deck->id)
-            ->select(\DB::raw("
-                cards.id, cards.image, cards.name, cards.rarity, cards.cost_text, cards.colors,
-                cards.value, cards.arena_class, faces.is_land, faces.cost
-            "))
-            ->get();
-
-        $cards = json_decode(json_encode($cards), true);
-
-        if (count($cards) < 7) {
-            return [
-                'status' => false
-            ];
-        }
-
-        $lands      = 0;
-        $hands      = [];
-        $totalLands = $this->countLands($cards);
-        $curve      = round($totalLands / count($cards) * 7);
-
-        for ($i = 0; $i < $times; $i++) {
-            shuffle($cards);
-            $first = array_slice($cards, 0, 7);
-            shuffle($cards);
-            $second = array_slice($cards, 0, 7);
-
-            sort($first);
-            sort($second);
-
-            $firstLandCount  = $this->countLands($first);
-            $secondLandCount = $this->countLands($second);
-
-            $firstDiff  = $curve - $firstLandCount;
-            $secondDiff = $curve - $secondLandCount;
-
-            // If first hand is closer to the curve
-            if (abs($firstDiff) < abs($secondDiff)) {
-                $hands[] = [
-                    'lands' => $firstLandCount,
-                    'cards' => $first
-                ];
-                $lands   += $firstLandCount;
-                continue;
-            }
-
-            // If the second hand is closer to the curve
-            if (abs($secondDiff) < abs($firstDiff)) {
-                $hands[] = [
-                    'lands' => $secondLandCount,
-                    'cards' => $second
-                ];
-                $lands   += $secondLandCount;
-                continue;
-            }
-
-            // If the first hand is under the curve and second isnt
-            if ($firstDiff > $secondDiff) {
-                $hands[] = [
-                    'lands' => $firstLandCount,
-                    'cards' => $first
-                ];
-                $lands   += $firstLandCount;
-                continue;
-            }
-
-            // If the second hand is under the curve and the first isnt
-            if ($secondDiff > $firstDiff) {
-                $hands[] = [
-                    'lands' => $secondLandCount,
-                    'cards' => $second
-                ];
-                $lands   += $secondLandCount;
-                continue;
-            }
-
-            // Exactly the same, pick random hand
-            $rand = rand(0, 1);
-            if ($rand === 0) {
-                $hands[] = [
-                    'lands' => $secondLandCount,
-                    'cards' => $second
-                ];
-                $lands   += $secondLandCount;
-            } else {
-                $hands[] = [
-                    'lands' => $firstLandCount,
-                    'cards' => $first
-                ];
-                $lands   += $firstLandCount;
-            }
-        }
-
-        return [
-            'lands' => $lands,
-            'hands' => $hands
-        ];
-    }
-
-    private function countLands($cards) {
-
-        $total = 0;
-
-        foreach ($cards as $card) {
-            $total += ($card['is_land'] > 0) ? 1 : 0;
-        }
-
-        return $total;
-    }
-
-    public function insertDeck(Request $request) {
-
-        $name        = $request->input('name', '');
-        $image       = $request->input('image', '');
-        $description = $request->input('description', '');
-        $type        = $request->input('type', '');
-        $cardIds     = $request->input('cards', false);
-
-        $deck = new Deck([
-            'name'        => $name,
-            'image'       => $image,
-            'description' => $description,
-            'type'        => $type
-        ]);
-        $deck->save();
-
-        $splits = explode(',', $cardIds);
-
-        foreach ($splits as $id) {
-            DeckCard::create([
-                'deck_id' => $deck->id,
-                'card_id' => $id
-            ]);
-        }
-
-        return [
-            'status' => true
-        ];
-    }
-
-    public function updateDeck(Request $request, $id) {
-
-        $deck = Deck::find($id);
-
-        if (!$deck) {
-            return [
-                'status' => false
-            ];
-        }
-
-        $name        = $request->input('name', '');
-        $image       = $request->input('image', '');
-        $description = $request->input('description', '');
-        $type        = $request->input('type', '');
-        $cardIds     = $request->input('cards', false);
-
-        $deck->name        = $name;
-        $deck->image       = $image;
-        $deck->description = $description;
-        $deck->type        = $type;
-        $deck->save();
-
-        DeckCard::where('deck_id', '=', $deck->id)->delete();
-
-        $splits = explode(',', $cardIds);
-
-        foreach ($splits as $id) {
-            DeckCard::create([
-                'deck_id' => $deck->id,
-                'card_id' => $id
-            ]);
-        }
-
-        return [
-            'status' => true
         ];
     }
 }
