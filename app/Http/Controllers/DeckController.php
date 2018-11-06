@@ -43,6 +43,7 @@ class DeckController extends Controller {
                 LEFT JOIN cards on cards.id = dc.card_id
                 LEFT JOIN faces on faces.card_id = cards.id
             WHERE dc.deck_id = $deckId
+            group by cards.id
         "));
 
         return [
