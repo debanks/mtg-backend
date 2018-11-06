@@ -4,6 +4,7 @@ use App\Console\Commands\CardCommand;
 use App\Constants;
 use App\Http\Controllers\Controller;
 use App\Models\Card;
+use App\Models\Deck;
 use App\Models\Face;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -14,7 +15,7 @@ class CardController extends Controller {
     public function home() {
 
         return [
-            'recent' => []
+            'decks' => Deck::where('priority', '=', 10)->limit(4)->get()
         ];
     }
 

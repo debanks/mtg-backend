@@ -207,7 +207,7 @@ class DeckController extends Controller {
             for ($i = 0; $i < $card['number']; $i++) {
                 DeckCard::create([
                     'deck_id' => $deck->id,
-                    'section' => 'main',
+                    'section' => 'sideboard',
                     'card_id' => $card['id']
                 ]);
             }
