@@ -35,10 +35,10 @@ class DeckController extends Controller {
 
         $cards = \DB::select(\DB::raw("
             SELECT
-                dc.type,
+                dc.type as deck_type,
                 cards.name, faces.power, faces.toughness, cards.image, cards.set, cards.set_name,
                 cards.value, cards.arena_class, cards.rarity, cards.colors, cards.cost_text,
-                MIN(faces.total_cost) as total_cost
+                MIN(faces.total_cost) as total_cost, faces.type
             FROM deck_cards dc
                 LEFT JOIN cards on cards.id = dc.card_id
                 LEFT JOIN faces on faces.card_id = cards.id
