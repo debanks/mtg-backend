@@ -35,7 +35,7 @@ class DeckController extends Controller {
 
         $cards = \DB::select(\DB::raw("
             SELECT
-                dc.section,
+                dc.type,
                 cards.name, faces.power, faces.toughness, cards.image, cards.set, cards.set_name,
                 cards.value, cards.arena_class, cards.rarity, cards.colors, cards.cost_text,
                 MIN(faces.total_cost) as total_cost
@@ -244,7 +244,7 @@ class DeckController extends Controller {
         foreach ($deckCards['main'] as $card) {
             DeckCard::create([
                 'deck_id' => $deck->id,
-                'section' => 'main',
+                'type'    => 'main',
                 'card_id' => $card['id']
             ]);
         }
@@ -252,7 +252,7 @@ class DeckController extends Controller {
         foreach ($deckCards['sideboard'] as $card) {
             DeckCard::create([
                 'deck_id' => $deck->id,
-                'section' => 'sideboard',
+                'type'    => 'sideboard',
                 'card_id' => $card['id']
             ]);
         }
