@@ -192,22 +192,24 @@ class DeckController extends Controller {
         ]);
         $deck->save();
 
-        $deckCards = json_decode($deckCards, true);
-
-        foreach ($deckCards['main'] as $card) {
-            DeckCard::create([
-                'deck_id' => $deck->id,
-                'section' => 'main',
-                'card_id' => $card['id']
-            ]);
+        foreach ($deckCards['main'] as $name => $card) {
+            for ($i = 0; $i < $card['number']; $i++) {
+                DeckCard::create([
+                    'deck_id' => $deck->id,
+                    'section' => 'main',
+                    'card_id' => $card['id']
+                ]);
+            }
         }
 
-        foreach ($deckCards['sideboard'] as $card) {
-            DeckCard::create([
-                'deck_id' => $deck->id,
-                'section' => 'sideboard',
-                'card_id' => $card['id']
-            ]);
+        foreach ($deckCards['sideboard'] as $name => $card) {
+            for ($i = 0; $i < $card['number']; $i++) {
+                DeckCard::create([
+                    'deck_id' => $deck->id,
+                    'section' => 'main',
+                    'card_id' => $card['id']
+                ]);
+            }
         }
 
         return [
@@ -238,8 +240,6 @@ class DeckController extends Controller {
         $deck->save();
 
         DeckCard::where('deck_id', '=', $deck->id)->delete();
-
-        $deckCards = json_decode($deckCards, true);
 
         foreach ($deckCards['main'] as $card) {
             DeckCard::create([
