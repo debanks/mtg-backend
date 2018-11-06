@@ -33,7 +33,7 @@ class CardController extends Controller {
             ->orderBy($orderBy, $ordering)
             ->select(
                 'faces.name', 'faces.power', 'faces.toughness', 'cards.image', 'cards.set', 'cards.set_name',
-                'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.id'
+                'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.id', 'cards.cost_text'
             );
 
         if ($sets !== false) {
