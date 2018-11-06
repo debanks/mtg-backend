@@ -31,6 +31,7 @@ class CardController extends Controller {
 
         $query = Card::leftJoin('faces', 'cards.id', '=', 'faces.card_id')
             ->orderBy($orderBy, $ordering)
+            ->groupBy('cards.id')
             ->select(
                 'cards.name', 'faces.power', 'faces.toughness', 'cards.image', 'cards.set', 'cards.set_name',
                 'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.colors', 'cards.cost_text',
