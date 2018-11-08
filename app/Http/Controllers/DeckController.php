@@ -38,7 +38,7 @@ class DeckController extends Controller {
                 dc.type as deck_type, cards.id,
                 cards.name, faces.power, faces.toughness, cards.image, cards.set, cards.set_name,
                 cards.value, cards.arena_class, cards.rarity, cards.colors, cards.cost_text,
-                MIN(faces.total_cost) as total_cost, faces.type
+                MIN(faces.total_cost) as total_cost, faces.type, IF(faces.type like '%Land%', 1, 0) as is_land
             FROM deck_cards dc
                 LEFT JOIN cards on cards.id = dc.card_id
                 LEFT JOIN faces on faces.card_id = cards.id
