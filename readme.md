@@ -1,7 +1,7 @@
-# Personal Backend
+# Magic the Gathering: Arena Helper Backend
 
-This is the laravel PHP backend for my personal website, memories, and mememachine.
-This should be paired with my [personal box](https://github.com/debanks/personal-box.git) for development.
+This is the laravel PHP backend for Magic the Gathering: Arena Helper (http://mtg.davisbanks.com).
+This should be paired with my [mtg-frontend](https://github.com/debanks/mtg-frontend.git) for development.
 
 ## Setting up
 
@@ -9,19 +9,10 @@ If you are using the personal box you should have cloned this repo into the pers
 If nothing is running then navigate to your personal-box folder and run:
 
 ```
-vagrant up
-vagrant ssh
-cd /var/www/backend
+cd /path-to-project
 composer install
 php artisan migrate:refresh --seed
 ```
 
 composer might have already ran while setting up the box, the result of this should
-be a fully set up backend database ready to test the different frontends.
-
-You will have to update your hosts file, you can follow the instructions here: 
-[Windows Host File](https://support.rackspace.com/how-to/modify-your-hosts-file/) and add:
-
-```
-192.168.10.10 api.davisbanks.test
-```
+be a fully set up backend database ready for user/development.
