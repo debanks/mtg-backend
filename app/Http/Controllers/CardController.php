@@ -200,4 +200,20 @@ class CardController extends Controller {
                 ->get()
         ];
     }
+
+    public function grabSet(Request $request, $set) {
+
+        return [
+            'cards' => Card::leftJoin('faces', 'cards.id', '=', 'faces.card_id')
+                ->orderBy('cards.value', 'desc')
+                ->orderBy('cards.name', 'asc')
+                ->where('cards.set', '=', $set)
+                ->groupBy('cards.id')
+                ->select(
+                    'cards.name', 'faces.power', 'faces.toughness', 'cards.image', 'cards.set', 'cards.set_name',
+                    'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.colors', 'cards.cost_text',
+                    \DB::raw('MIN(faces.total_cost) as total_cost'), 'cards.id'
+                )->get()
+        ];
+    }
 }

@@ -13,6 +13,7 @@
 Route::group(['middleware' => ['api']], function() {
     Route::get('api/home', ['uses' => 'CardController@home']);
     Route::get('api/search', ['uses' => 'CardController@search']);
+    Route::get('api/sets/{set}', ['uses' => 'CardController@grabSet']);
     Route::get('api/draft', ['uses' => 'CardController@draft']);
     Route::get('api/simulate/{deckId}', ['uses' => 'DeckController@simulate']);
     Route::get('api/decks', ['uses' => 'DeckController@index']);
