@@ -212,7 +212,7 @@ class CardController extends Controller {
                 ->select(
                     'cards.name', 'faces.power', 'faces.toughness', 'cards.image', 'cards.set', 'cards.set_name',
                     'cards.value', 'cards.arena_class', 'cards.rarity', 'cards.colors', 'cards.cost_text',
-                    \DB::raw('MIN(faces.total_cost) as total_cost'), 'cards.id'
+                    \DB::raw('MIN(faces.total_cost) as total_cost'), 'cards.id', 'faces.type'
                 )->get()
         ];
     }
